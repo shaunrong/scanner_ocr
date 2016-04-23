@@ -43,7 +43,7 @@ if __name__ == '__main__':
 
     # find the contours in the edged image, keeping only the
     # largest ones, and initialize the screen contour
-    (cnts, _) = cv2.findContours(edged.copy(), cv2.RETR_LIST, cv2.CHAIN_APPROX_SIMPLE)
+    (_, cnts, _) = cv2.findContours(edged.copy(), cv2.RETR_LIST, cv2.CHAIN_APPROX_SIMPLE)
     cnts = sorted(cnts, key=cv2.contourArea, reverse=True)[:5]
 
     # loop over the contours
@@ -51,11 +51,6 @@ if __name__ == '__main__':
         # approximate the contour
         peri = cv2.arcLength(c, True)
         approx = cv2.approxPolyDP(c, 0.02 * peri, True)
-        print(len(approx))
-        cv2.drawContours(image, [approx], -1, (0, 255, 0), 2)
-        cv2.imshow("Outline", image)
-        cv2.waitKey(0)
-        cv2.destroyAllWindows()
         # if our approximated contour has four points, then we
         # can assume that we have found our screen
         if len(approx) == 4:
