@@ -1,9 +1,13 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
+from __future__ import print_function
+from __future__ import division
+from __future__ import absolute_import
+from __future__ import unicode_literals
+
 from transform import four_point_transform
 import imutils
 from skimage.filters import threshold_adaptive
-import numpy as np
 import argparse
 import cv2
 
@@ -12,15 +16,10 @@ __version__ = '0.1'
 __maintainer__ = 'Ziqin (Shaun) Rong'
 __email__ = 'rongzq08@gmail.com'
 
-if __name__ == '__main__':
-    # construct the argument parser and parse the arguments
-    ap = argparse.ArgumentParser()
-    ap.add_argument("-i", "--image", required=True, help="Path to the image to be scanned")
-    args = vars(ap.parse_args())
 
+def scan(image):
     # load the image and compute the ratio of the old height
     # to the new height, clone it, and resize it
-    image = cv2.imread(args["image"])
     ratio = image.shape[0] / 500.0
     orig = image.copy()
     image = imutils.resize(image, height=500)
@@ -32,12 +31,13 @@ if __name__ == '__main__':
     edged = cv2.Canny(gray, 50, 125)
 
     # show the original image and the edge detected image
-    print "STEP 1: Edge Detection"
+    print("STEP 1: Edge Detection")
     cv2.imshow("Image", image)
     cv2.waitKey(0)
     cv2.imshow("Gray", gray)
     cv2.waitKey(0)
     cv2.imshow("Edged", edged)
+    # cv2.imwrite("receipt_edged.jpg", edged)
     cv2.waitKey(0)
     cv2.destroyAllWindows()
 
@@ -58,9 +58,10 @@ if __name__ == '__main__':
             break
 
     # show the contour (outline) of the piece of paper
-    print "STEP 2: Find contours of paper"
+    print("STEP 2: Find contours of paper")
     cv2.drawContours(image, [screenCnt], -1, (0, 255, 0), 2)
     cv2.imshow("Outline", image)
+    # cv2.imwrite("receipt_outlined.jpg", image)
     cv2.waitKey(0)
     cv2.destroyAllWindows()
 
@@ -75,9 +76,26 @@ if __name__ == '__main__':
     warped = warped.astype("uint8") * 255
 
     # show the original and scanned images
-    print "STEP 3: Apply perspective transform"
+    print("STEP 3: Apply perspective transform")
     cv2.imshow("Original", imutils.resize(orig, height=650))
     cv2.imshow("Scanned", imutils.resize(warped, height=650))
-    cv2.imwrite("demo_scanned.jpg", warped)
     cv2.waitKey(0)
+
+    return warped
+
+if __name__ == '__main__':
+    # construct the argument parser and parse the arguments
+    ap = argparse.ArgumentParser()
+    ap.add_argument("-i", "--image", required=True, help="Path to the image to be scanned")
+    ap.add_argument("-o", "--output", required=True, help="Path to the output image")
+    args = vars(ap.parse_args())
+
+    input_image = cv2.imread(args["image"])
+    output_image = scan(input_image)
+    cv2.imwrite(args["output"], output_image)
+
+
+
+
+
 
